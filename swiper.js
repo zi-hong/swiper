@@ -17,17 +17,18 @@
 	function Swiper(el, op) {
 		//el是 querySelector
 		this.config = {
-			autoPlay: true,
-			delay: 2000,
-			changeEvent: function(index,swpier) {}
-		}
-		/**合并参数**/
-		extend(this.config,op);
-		
+				autoPlay: true,
+				delay: 2000,
+				start: 0,
+				changeEvent: function(index, swpier) {}
+			}
+			/**合并参数**/
+		extend(this.config, op || {});
+
 		var currentDirect = 'left',
 			autoPlayTimer = null,
 			moveTimer = null;
-		
+
 		this.element = document.querySelector(el);
 		swiperContent = document.querySelector(el + ' .swiper-content');
 		swiperChild = document.querySelector(el + ' .swiper-content').children;
@@ -87,6 +88,8 @@
 			}
 		})
 
+		setX(-this.config.start * singleWidth);
+
 		/**缓缓移动**/
 		function toMoveX(x) {
 			var i = 1;
@@ -128,7 +131,7 @@
 			var toX = -(index * singleWidth);
 
 			toMoveX(toX);
-			_this.config.changeEvent(index,this);
+			_this.config.changeEvent(index, this);
 		}
 
 		/**获得目前的index**/
@@ -212,6 +215,12 @@
 		}
 	}
 
-	window.Swiper = Swiper;
+	if (typeof define === 'function' && define.amd) {
+		define(function() {
+			return Swiper;
+		})
+	} else {
+		window.Swiper = Swiper;
+	}
 
 })(window)
