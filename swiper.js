@@ -1,37 +1,55 @@
 (function(window, undefine) {
 
+	/**tool-start**/
 	function extend(orginObj, obj) {
 		for (var i in orginObj) {
 			orginObj[i] = obj[i] || orginObj[i];
 		}
 	}
 
+	function each(obj, fun) {
+		for (var j = 0; j < obj.length; j++) {
+			fun(obj[j]);
+		}
+	}
+	/**tool-end**/
+
 	function Swiper(el, op) {
+		//el是 querySelector
 		this.config = {
 			autoPlay: true,
 			delay: 2000,
-			changeEvent: function() {}
+			changeEvent: function(index,swpier) {}
 		}
-
-		this.width = el.width();
-		this.length = el.find('.list').length;
-		this.allWidth = this.width * this.length;
-		this.currentDirect = 'left';
-		this.autoPlayTimer = null;
-		this.moveTimer = null;
+		/**合并参数**/
+		extend(this.config,op);
+		
+		var currentDirect = 'left',
+			autoPlayTimer = null,
+			moveTimer = null;
+		
+		this.element = document.querySelector(el);
+		swiperContent = document.querySelector(el + ' .swiper-content');
+		swiperChild = document.querySelector(el + ' .swiper-content').children;
+		singleWidth = window.getComputedStyle(this.element)['width'].match(/(\d+)/)[0];
+		this.length = swiperChild.length;
+		allWidth = singleWidth * this.length;
 
 		_this = this;
 
-		el.find('.list').css('width', this.width + 'px');
+		each(swiperChild, function(child) {
+			child.style.width = singleWidth + 'px';
+		})
 
-		el.find('.swiper-content').width(this.allWidth + 'px');
+		swiperContent.style.width = allWidth + 'px';
 
-		var x = 0;//记录开始滑动的位置
 
-		el.find('.swiper-content')[0].addEventListener('touchmove', function(e) {
+		var x = 0; //记录开始滑动的位置
+
+		swiperContent.addEventListener('touchmove', function(e) {
 
 			var dir = direction(x, e.targetTouches[0].pageX);
-			_this.currentDirect = dir;
+			currentDirect = dir;
 			switch (dir) {
 				case 'left':
 					moveX(-Math.abs(e.targetTouches[0].pageX - x));
@@ -43,36 +61,38 @@
 			x = e.targetTouches[0].pageX;
 		})
 
-		el.find('.swiper-content')[0].addEventListener('touchstart', function(e) {
+		swiperContent.addEventListener('touchstart', function(e) {
 
-			_this.autoPlayTimer && clearInterval(_this.autoPlayTimer);
-			_this.moveTimer && clearInterval(_this.moveTimer);
+			autoPlayTimer && clearInterval(autoPlayTimer);
+			moveTimer && clearInterval(moveTimer);
 
 			x = e.targetTouches[0].pageX;
 
 		})
 
-		el.find('.swiper-content')[0].addEventListener('touchend', function(e) {
+		swiperContent.addEventListener('touchend', function(e) {
 
 			x = 0;
 
 			var index = getIndex();
-			if (_this.currentDirect == 'left') {
+			if (currentDirect == 'left') {
 				index = index + 1 < _this.length ? index + 1 : _this.length - 1;
 			}
 			toMoveIndex(index);
 
 			if (_this.config.autoPlay) {
 				// setTimeout(function() {
-					autoPlay();
+				autoPlay();
 				// }, 1000)
 			}
 		})
 
+		/**缓缓移动**/
 		function toMoveX(x) {
 			var i = 1;
 			var currentX = getCurrentX();
 			var value = currentX - x;
+			//label 用于判断方向
 			var label = '+';
 
 			if (value > 0) {
@@ -80,8 +100,8 @@
 			}
 			var step = parseInt(label + 20);
 
-			_this.moveTimer && clearInterval(_this.moveTimer);
-			_this.moveTimer = setInterval(function() {
+			moveTimer && clearInterval(moveTimer);
+			moveTimer = setInterval(function() {
 
 				value = value + step;
 
@@ -89,11 +109,11 @@
 
 				if (label == '-' && value <= 0) {
 					setX(x);
-					clearInterval(_this.moveTimer);
+					clearInterval(moveTimer);
 
 				} else if (label == '+' && value >= 0) {
 					setX(x);
-					clearInterval(_this.moveTimer);
+					clearInterval(moveTimer);
 
 				}
 
@@ -102,13 +122,16 @@
 			}, 20 + i);
 		}
 
+		/**移动到相应的index**/
 		function toMoveIndex(index) {
 
-			var toX = -(index * _this.width);
+			var toX = -(index * singleWidth);
 
 			toMoveX(toX);
+			_this.config.changeEvent(index,this);
 		}
 
+		/**获得目前的index**/
 		function getIndex() {
 			var currentX = getCurrentX();
 
@@ -117,20 +140,23 @@
 				return step;
 			}
 
-			step = parseInt(Math.abs(currentX) / _this.width);
+			step = parseInt(Math.abs(currentX) / singleWidth);
 
 			return step;
 
 		}
 
+		/**获得当前位移**/
 		function getCurrentX() {
-			return parseInt(el.find('.swiper-content').css('transform') + '' != 'none' ? el.find('.swiper-content').css('transform').match(/-*\d+/)[0] : 0);
+			return parseInt(swiperContent.style.transform ? swiperContent.style.transform.match(/-*\d+/)[0] : 0);
 		}
 
+		/**实际的设置移动距离**/
 		function setX(tempx) {
-			el.find('.swiper-content').css('transform', 'translateX(' + tempx + 'px)');
+			swiperContent.style.transform = 'translateX(' + tempx + 'px)';
 		}
 
+		/**通过将移动的index算出位移量**/
 		function moveX(step) {
 
 			var currentX = getCurrentX();
@@ -140,16 +166,18 @@
 			if (tempx >= 0) {
 				tempx = 0;
 			}
-			if (-tempx >= _this.allWidth - _this.width) {
-				tempx = -(_this.allWidth - _this.width);
+			if (-tempx >= allWidth - singleWidth) {
+				tempx = -(allWidth - singleWidth);
 			}
 			setX(tempx);
 		}
 
+		/**判断方向**/
 		function direction(x1, x2) {
 			return x2 > x1 ? 'right' : 'left';
 		}
 
+		/**自动播放**/
 		function autoPlay() {
 			var index = getIndex();
 
@@ -158,9 +186,9 @@
 				flag = 1;
 			}
 
-			_this.autoPlayTimer && clearInterval(_this.autoPlayTimer);
+			autoPlayTimer && clearInterval(autoPlayTimer);
 
-			_this.autoPlayTimer = setInterval(function() {
+			autoPlayTimer = setInterval(function() {
 
 				if (flag == 1 && index + 1 < _this.length) {
 					index++;
@@ -173,8 +201,8 @@
 					flag = 1;
 					index++;
 				}
-				var x = -(_this.width * index);
-				toMoveX(x);
+
+				toMoveIndex(index);
 
 			}, _this.config.delay)
 		}
