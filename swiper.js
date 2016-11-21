@@ -16,27 +16,52 @@
 
 	function Swiper(el, op) {
 		//el是 querySelector
-		this.config = {
+		config = {
 				autoPlay: true,
 				delay: 2000,
 				start: 0,
+				isNav: true,
+				navColor: '#ffffff',
+				navActiveColor: 'red',
 				changeEvent: function(index, swpier) {}
 			}
 			/**合并参数**/
-		extend(this.config, op || {});
+		extend(config, op || {});
 
 		var currentDirect = 'left',
 			autoPlayTimer = null,
-			moveTimer = null;
+			moveTimer = null,
+			navs = null;
 
 		this.element = document.querySelector(el);
-		swiperContent = document.querySelector(el + ' .swiper-content');
-		swiperChild = document.querySelector(el + ' .swiper-content').children;
+		swiperContent = document.querySelector(el).children[0];
+		swiperChild = swiperContent.children;
+
+		this.element.style = 'position: relative;width: 100%;overflow: hidden;';
+		swiperContent.style = 'overflow: hidden;';
+		each(swiperChild, function(el) {
+			el.style = 'float: left;';
+		})
+
 		singleWidth = window.getComputedStyle(this.element)['width'].match(/(\d+)/)[0];
 		this.length = swiperChild.length;
 		allWidth = singleWidth * this.length;
 
 		_this = this;
+
+		/**导航**/
+		(function() {
+			if (config.isNav && _this.length > 0) {
+				navs = document.createElement('div');
+				navs.style = 'pointer-events: none;text-align: center;position: absolute;width:100%;bottom:5px;';
+				var spans = '';
+				for (var i = 0; i < _this.length; i++) {
+					spans += '<span style="border-radius: 50%;display: inline-block;width: 10px;height: 10px;background-color: #' + config.navColor + ';margin-left:2px;margin-right:2px"></span>';
+				}
+				navs.innerHTML = spans;
+				_this.element.appendChild(navs);
+			}
+		})()
 
 		each(swiperChild, function(child) {
 			child.style.width = singleWidth + 'px';
@@ -44,6 +69,11 @@
 
 		swiperContent.style.width = allWidth + 'px';
 
+		/**初始化位置**/
+		(function() {
+			setX(-config.start * singleWidth);
+			navSelect(config.start);
+		})()
 
 		var x = 0; //记录开始滑动的位置
 
@@ -81,14 +111,14 @@
 			}
 			toMoveIndex(index);
 
-			if (_this.config.autoPlay) {
+			if (config.autoPlay) {
 				// setTimeout(function() {
 				autoPlay();
 				// }, 1000)
 			}
 		})
 
-		setX(-this.config.start * singleWidth);
+
 
 		/**缓缓移动**/
 		function toMoveX(x) {
@@ -131,7 +161,19 @@
 			var toX = -(index * singleWidth);
 
 			toMoveX(toX);
-			_this.config.changeEvent(index, this);
+			config.changeEvent(index, this);
+			navSelect(index);
+		}
+
+		function navSelect(index) {
+			var spans = navs.children;
+			for (var i = 0; i < spans.length; i++) {
+				if (index == i) {
+					spans[i].style.backgroundColor = config.navActiveColor;
+				} else {
+					spans[i].style.backgroundColor = config.navColor;
+				}
+			}
 		}
 
 		/**获得目前的index**/
@@ -207,10 +249,10 @@
 
 				toMoveIndex(index);
 
-			}, _this.config.delay)
+			}, config.delay)
 		}
 
-		if (_this.config.autoPlay) {
+		if (config.autoPlay) {
 			autoPlay();
 		}
 	}

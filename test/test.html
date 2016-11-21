@@ -10,16 +10,8 @@
 			padding: 0px;
 			margin: 0px;
 		}
-		.swiper{
-			width: 100%;
-			overflow: hidden;
-		}
-		.swiper-content{
-			overflow: hidden;
-		}
 		.list{
-			height: 200px;
-			float: left;
+			/*height: 200px;*/
 		}
 	</style>
 
@@ -34,8 +26,8 @@
 	</div>
 </body>
 <script type="text/javascript">
-	var s = new Swiper('.swiper',{start:1,changeEvent:function(index,swiper){
-		console.log(index);
+	var s = new Swiper('.swiper',{start:1,navColor:'green',changeEvent:function(index,swiper){
+		// console.log(index);
 	}});
 </script>
 </html>
