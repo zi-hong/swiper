@@ -3,7 +3,7 @@
 ###支持amd加载
 ```javascript
 var sw = require('swiper');
-new sw('.swipe');
+new sw('.swipe',option);
 ```
 ###相关参数：
 ```javascript
