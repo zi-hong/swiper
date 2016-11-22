@@ -1,10 +1,14 @@
-﻿移动端滚动插件
-
-支持amd加载
-
-相关参数：
+移动端滚动插件
+===
+###支持amd加载
+```javascript
+var sw = require('swiper');
+new sw('.swipe',option);
+```
+###相关参数：
+```javascript
 option = {
-	autoPlay: true,//是否自动播放
+    autoPlay: true,//是否自动播放
 	delay: 2000,//切换间隔时间(毫秒)
 	start: 0,//开始index
 	align: 'h', //or v 滚动方向 h水平  v竖直
@@ -13,3 +17,4 @@ option = {
 	navActiveColor: 'red',//导航点激活颜色
 	changeEvent: function(index, swpier) {}//切换事件
 }
+```
