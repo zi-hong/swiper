@@ -35,8 +35,16 @@
 		this.navs = null;
 
 		this.element = document.querySelector(el);
-		this.swiperContent = document.querySelector(el).children[0];
-		this.swiperChild = this.swiperContent.children;
+		if(!this.element){
+			return;
+		}
+		try{
+			this.swiperContent = document.querySelector(el).children[0];
+			this.swiperChild = this.swiperContent.children;
+		}catch(e){
+			console.error('确保正确的dom结构');
+			throw e;
+		}
 
 		this.element.style = 'position: relative;width: 100%;overflow: hidden;';
 		this.swiperContent.style = 'overflow: hidden;';
@@ -58,8 +66,6 @@
 		})
 		this.length = this.swiperChild.length;
 		this.allWidth = this.singleWidth * this.length;
-
-
 
 		/**导航**/
 		(function() {
@@ -132,6 +138,8 @@
 
 			_this.x = e.targetTouches[0].pageX;
 			_this.y = e.targetTouches[0].pageY;
+
+			e.stopPropagation();
 
 		})
 
