@@ -10,8 +10,16 @@
 			padding: 0px;
 			margin: 0px;
 		}
+		ul{
+			padding: 0px;
+			margin: 0px;
+		}
 		.list{
-			/*height: 200px;*/
+			height: 200px;
+		}
+		.swiper1{
+			height: 30px;
+			text-align: center;
 		}
 	</style>
 
@@ -24,10 +32,41 @@
 			<div class='list'>ccccc</div>
 		</div>
 	</div>
+	</br>
+	</br>
+	</br>
+	<div class='swiper1'>
+		<ul>
+			<li>111111</li>
+			<li>222222</li>
+			<li>333</li>
+			<li>444</li>
+			<li>555</li>
+			<li>666</li>
+		</ul>
+	</div>
 </body>
 <script type="text/javascript">
-	var s = new Swiper('.swiper',{start:1,navColor:'green',changeEvent:function(index,swiper){
-		// console.log(index);
-	}});
+
+
+	
+
+	var s = new Swiper('.swiper', {
+		start: 1,
+		navColor: 'green',
+		align: 'h',
+		changeEvent: function(index, swiper) {
+			// console.log(index);
+		}
+	});
+	var s1 = new Swiper('.swiper1', {
+		start: 1,
+		isNav: false,
+		align: 'v',
+		autoPlay:true,
+		changeEvent: function(index, swiper) {
+			// console.log(index);
+		}
+	});
 </script>
 </html>
